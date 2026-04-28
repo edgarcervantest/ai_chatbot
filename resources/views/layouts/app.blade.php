@@ -12,11 +12,11 @@
         
         <!-- Scripts -->
         @vite(['resources/css/app.css', 'resources/js/app.js'])
-        @fluxStyles
+     
     </head>
-    <body class="min-h-screen bg-white dark:bg-zinc-800">
+    <body class="min-h-screen h-screen bg-white dark:bg-zinc-800 flex flex-col">
         {{ $slot }}
         
-        @fluxScripts
+
     </body>
 </html>

@@ -15,7 +15,8 @@
         "livewire/flux": "^2.0",
         "livewire/livewire": "*",
         "livewire/volt": "^1.6.7",
-        "prism-php/prism": "*"
+        "prism-php/prism": "*",
+        "spatie/laravel-tail": "^4.6"
     },
     "require-dev": {
         "fakerphp/faker": "^1.23",
