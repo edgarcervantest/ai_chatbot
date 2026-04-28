@@ -48,6 +48,11 @@ jobs:
       - name: Generate Application Key
         run: php artisan key:generate
 
+      - name: Debug Flux Installation
+        run: |
+          composer show | grep flux
+          ls -la vendor/livewire/flux || echo "Flux not found"
+
       # 🔧 SOLUCIÓN: Publicar assets y vistas de Flux
       - name: Publish Flux Assets
         run: |
