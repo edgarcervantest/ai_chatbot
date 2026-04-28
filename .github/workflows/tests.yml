@@ -25,6 +25,7 @@ jobs:
           php-version: 8.4
           tools: composer:v2
           coverage: xdebug
+          extensions: dom, curl, libxml, mbstring, zip, pcntl, pdo, sqlite, pdo_sqlite, bcmath, intl, gd
 
       - name: Setup Node
         uses: actions/setup-node@v4
@@ -33,7 +34,7 @@ jobs:
           cache: 'npm'
 
       - name: Install Node Dependencies
-        run: npm i
+        run: npm ci
 
       - name: Create SQLite Database
         run: touch database/database.sqlite
@@ -47,8 +48,45 @@ jobs:
       - name: Generate Application Key
         run: php artisan key:generate
 
+      # 🔧 SOLUCIÓN: Publicar assets y vistas de Flux
+      - name: Publish Flux Assets
+        run: |
+          php artisan vendor:publish --tag=flux-views --force --no-interaction
+          php artisan vendor:publish --tag=flux-assets --force --no-interaction
+
+      # 🔧 SOLUCIÓN: Limpiar cache de vistas
+      - name: Clear View Cache
+        run: php artisan view:clear
+
+      # 🔧 SOLUCIÓN: Cachear vistas (opcional pero mejora rendimiento)
+      - name: Cache Views
+        run: php artisan view:cache || true
+
       - name: Build Assets
         run: npm run build
 
+      # 🔧 SOLUCIÓN: Configurar entorno para pruebas
+      - name: Configure Testing Environment
+        run: |
+          php artisan config:clear
+          echo "APP_ENV=testing" >> .env
+          echo "DB_CONNECTION=sqlite" >> .env
+          echo "DB_DATABASE=database/database.sqlite" >> .env
+
+      - name: Run Migrations
+        run: php artisan migrate --force
+
       - name: Run Tests
         run: ./vendor/bin/pest
+        env:
+          APP_ENV: testing
+          DB_CONNECTION: sqlite
+          DB_DATABASE: database/database.sqlite
+
+      # Opcional: Subir logs si fallan los tests
+      - name: Upload Logs on Failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: laravel-logs
+          path: storage/logs/laravel.log
